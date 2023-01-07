@@ -1,4 +1,6 @@
-all: bf-interpreter bf-jit
+.PHONY: all test-all
+
+all: bf-interpreter bf-jit bf-compiler
 
 bf-interpreter: ./src/bf-interpreter.cpp
 	$(CXX) ./src/bf-interpreter.cpp -o ./bf-interpreter $(CXXFLAGS)
@@ -21,4 +23,4 @@ test-bf-compiler: bf-compiler
 	./tests/bf/run_tests.sh ./bf-compiler-runner.sh
 
 clean:
-	rm ./bf-interpreter ./bf-jit
+	rm ./bf-interpreter ./bf-jit ./bf-compiler
