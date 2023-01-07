@@ -1,0 +1,4 @@
+# Ignore files produced by us
+/bf-compiler
+/bf-interpreter
+/bf-jit
