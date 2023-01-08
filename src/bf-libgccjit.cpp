@@ -144,11 +144,13 @@ struct BfCompiler {
         this->cellArraySize = sizeof(int) >= 4 ? 600000000 : 30000;
         this->cellArrayType = this->context.new_array_type(this->cellType, this->cellArraySize);
 
+        auto initialLocation = this->context.new_location(this->filename, 1, 0);
+
         std::vector<gccjit::param> getcharParams = {};
-        this->funcGetchar = this->context.new_function(GCC_JIT_FUNCTION_IMPORTED, this->intType, "getchar", getcharParams, false);
+        this->funcGetchar = this->context.new_function(GCC_JIT_FUNCTION_IMPORTED, this->intType, "getchar", getcharParams, false, initialLocation);
 
         std::vector<gccjit::param> putcharParams = { this->context.new_param(this->intType, "c") };
-        this->funcPutchar = this->context.new_function(GCC_JIT_FUNCTION_IMPORTED, this->voidType, "putchar", putcharParams, false);
+        this->funcPutchar = this->context.new_function(GCC_JIT_FUNCTION_IMPORTED, this->voidType, "putchar", putcharParams, false, initialLocation);
 
         this->funcMain = this->makeMainFunc();
         this->currentBlock = this->funcMain.new_block("initial");
@@ -158,12 +160,12 @@ struct BfCompiler {
         this->valCellZero = this->context.zero(this->cellType);
         this->valCellOne = this->context.one(this->cellType);
         this->valIntHalfArraySize = this->context.new_rvalue(this->intType, this->cellArraySize / 2);
-
-        this->valCellsArray = this->context.new_global(GCC_JIT_GLOBAL_INTERNAL, this->cellArrayType, "gCellsArray");
-        this->valCellsArrayIndex = this->funcMain.new_local(this->intType, "cellsArrayIndex");
+        
+        this->valCellsArray = this->context.new_global(GCC_JIT_GLOBAL_INTERNAL, this->cellArrayType, "gCellsArray", initialLocation);
+        this->valCellsArrayIndex = this->funcMain.new_local(this->intType, "cellsArrayIndex", initialLocation);
 
         this->currentBlock.add_comment("cellsArrayIndex = " + std::to_string(this->cellArraySize / 2));
-        this->currentBlock.add_assignment(this->valCellsArrayIndex, this->valIntHalfArraySize, this->context.new_location(this->filename, this->line, this->column));
+        this->currentBlock.add_assignment(this->valCellsArrayIndex, this->valIntHalfArraySize, initialLocation);
 
         while (true) {
             int character = this->inputStream.get();
@@ -172,7 +174,7 @@ struct BfCompiler {
             this->compileOneCharacter((unsigned char)character);
         }
 
-        this->currentBlock.end_with_return(this->valIntZero);
+        this->currentBlock.end_with_return(this->valIntZero, this->context.new_location(this->filename, this->line, this->column));
         return this->context;
     }
 };
