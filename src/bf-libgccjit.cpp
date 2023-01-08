@@ -37,7 +37,7 @@ struct BfCompiler {
         gccjit::type charPtrPtrType = this->context.get_type(GCC_JIT_TYPE_CHAR).get_pointer().get_pointer();
         std::vector<gccjit::param> mainParams = { this->context.new_param(this->intType, "argc"), this->context.new_param(charPtrPtrType, "argv") };
 
-        return this->context.new_function(GCC_JIT_FUNCTION_EXPORTED, this->intType, "main", mainParams, false);
+        return this->context.new_function(GCC_JIT_FUNCTION_EXPORTED, this->intType, "main", mainParams, false, this->context.new_location(this->filename, this->line, this->column));
     }
 
     gccjit::lvalue getCurrentCell(gccjit::location location)
